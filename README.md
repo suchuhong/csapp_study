@@ -1,7 +1,16 @@
 ## 使用
 
 make main
+
 make run
+
+## 获取 add.txt
+
+1、gcc add.c -o add
+
+2、objdump add >> add.txt
+
+3、删除部分信息
 
 
 ## 注意
