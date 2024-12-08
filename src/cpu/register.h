@@ -1,3 +1,6 @@
+#ifndef REGISRTER_H
+#define REGISRTER_H
+
 #include<stdlib.h>
 #include<stdint.h>
 
@@ -96,4 +99,6 @@ typedef struct REG_STRUCT
     uint64_t rip; // PC
 } reg_t;
 
-reg_t reg;
+extern reg_t reg;
+
+#endif

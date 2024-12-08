@@ -1,17 +1,17 @@
+#ifndef INSTRUCTION_H
+#define INSTRUCTION_H
+
 #include<stdlib.h>
 #include<stdint.h>
 
-// 内存大小，每个位置放一个字节的数据
-// 粘贴复制
-#define MM_LEN 1000 
-
-uint8_t mm[MM_LEN];
+#define NUM_INSTRTYPE 30
 
 typedef enum OP 
 {
     MOV,  // 0
     PUSH, // 1
-    CALL  // 2
+    CALL,  // 2
+    ADD_REG_REG 
 } op_t;
 
 typedef enum OD_TYPE 
@@ -39,7 +39,6 @@ typedef struct OD
    uint64_t *reg1; // 地址
    uint64_t *reg2; // 地址
 
-   char code[100];
 } od_t;
 
 typedef struct INSTRUCT_STRUCT 
@@ -47,14 +46,20 @@ typedef struct INSTRUCT_STRUCT
     op_t op; // mov push
     od_t src;
     od_t dst;
+
+    char code[100];
 } inst_t;
 
-#define INST_LEN 100
+typedef void (*handler_t)(uint64_t, uint64_t);
 
-inst_t program[INST_LEN];
+extern handler_t handler_table[NUM_INSTRTYPE];
 
 // 取指令
 // 译码
 // 执行
 
-uint64_t decode_od(od_t od);
+void instruction_cycle();
+
+void add_reg_reg_handler(uint64_t src, uint64_t dst);
+
+#endif
