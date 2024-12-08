@@ -2,16 +2,18 @@
 
 #include "cpu/register.h"
 #include "memory/instruction.h"
+#include "disk/elf.h"
 
 int main() 
 {
     
-    reg.rax = 0x1234abcd5678ffaa;
+    init_handler_table();
 
-    printf("eax: %08x\n", reg.eax);
-    printf("ax: %08x\n", reg.ax);
-    printf("al: %08x\n", reg.al);
-    printf("ah: %08x\n", reg.ah);
+    for (size_t i = 0; i < INST_LEN; i++)
+    {
+    //    instruction_cycle();
+    }
+    
 
     return 0;
 }

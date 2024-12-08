@@ -78,8 +78,52 @@ handler_t handler_table[NUM_INSTRTYPE];
 
 void init_handler_table()
 {
+    handler_table[MOV_REG_REG] = mov_reg_reg_handler;
+    handler_table[MOV_REG_MEM] = mov_reg_mem_handler;
+    handler_table[MOV_MEM_REG] = mov_mem_reg_handler;
+    handler_table[CALL] = call_handler;
+    handler_table[PUSH_REG] = push_reg_handler;
+    handler_table[POP_REG] = pop_reg_handler;
+    handler_table[RET] = ret_handler;
     handler_table[ADD_REG_REG] = add_reg_reg_handler;
 };
+
+void mov_reg_reg_handler(uint64_t src, uint64_t dst)
+{
+    *(uint64_t *)dst = *(uint64_t *)src;
+    // PC/rip 指向 下一条指令
+    reg.rip =  reg.rip + sizeof(inst_t);
+}
+
+void mov_reg_mem_handler(uint64_t src, uint64_t dst)
+{
+
+}
+
+void mov_mem_reg_handler(uint64_t src, uint64_t dst)
+{
+
+}
+
+void call_handler(uint64_t src, uint64_t dst)
+{
+
+}
+
+void push_reg_handler(uint64_t src, uint64_t dst)
+{
+
+}
+
+void pop_reg_handler(uint64_t src, uint64_t dst)
+{
+
+}
+
+void ret_handler(uint64_t src, uint64_t dst)
+{
+
+}
 
 void add_reg_reg_handler(uint64_t src, uint64_t dst) 
 {

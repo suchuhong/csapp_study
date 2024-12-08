@@ -8,14 +8,19 @@
 
 typedef enum OP 
 {
-    MOV,  // 0
-    PUSH, // 1
-    CALL,  // 2
-    ADD_REG_REG 
+    MOV_REG_REG,
+    MOV_REG_MEM,
+    MOV_MEM_REG,
+    CALL,  
+    PUSH_REG,
+    POP_REG,
+    RET,
+    ADD_REG_REG
 } op_t;
 
 typedef enum OD_TYPE 
 {
+    EMPTY,
     IMM, 
     REG,
     MM_IMM,
@@ -54,11 +59,27 @@ typedef void (*handler_t)(uint64_t, uint64_t);
 
 extern handler_t handler_table[NUM_INSTRTYPE];
 
+void init_handler_table();
+
 // 取指令
 // 译码
 // 执行
 
 void instruction_cycle();
+
+void mov_reg_reg_handler(uint64_t src, uint64_t dst);
+
+void mov_reg_mem_handler(uint64_t src, uint64_t dst);
+
+void mov_mem_reg_handler(uint64_t src, uint64_t dst);
+
+void call_handler(uint64_t src, uint64_t dst);
+
+void push_reg_handler(uint64_t src, uint64_t dst);
+
+void pop_reg_handler(uint64_t src, uint64_t dst);
+
+void ret_handler(uint64_t src, uint64_t dst);
 
 void add_reg_reg_handler(uint64_t src, uint64_t dst);
 

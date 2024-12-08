@@ -3,8 +3,8 @@
 
 #include "memory/instruction.h"
 
-#define INST_LEN 100
+#define INST_LEN 15
 
-inst_t program[INST_LEN];
+extern inst_t program[INST_LEN];
 
 #endif
