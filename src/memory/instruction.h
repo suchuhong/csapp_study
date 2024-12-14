@@ -3,6 +3,7 @@
 
 #include<stdlib.h>
 #include<stdint.h>
+#include<stdio.h>
 
 #define NUM_INSTRTYPE 30
 

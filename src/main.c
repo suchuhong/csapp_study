@@ -1,9 +1,14 @@
 #include<stdio.h>
 
 #include "cpu/register.h"
+#include "cpu/mmu.h"
 #include "memory/instruction.h"
 #include "memory/dram.h"
 #include "disk/elf.h"
+
+void print_register();
+void print_stack();
+
 
 int main() 
 {
@@ -75,17 +80,24 @@ int main()
 // 0x7fffffffda90: 0xffffde49      0x00007fff      0x12340000      0x00000000
 // 0x7fffffffdaa0: 0x0000abcd      0x00000000      0x55555040      0x00005555
 // 0x7fffffffdab0: 0x00000001      0x00000000
+    write64bit_dram(va2pa(0x7fffffffdab0), 0x1);                 //rbp
+    write64bit_dram(va2pa(0x7fffffffdaa8), 0x555555555040);
+    write64bit_dram(va2pa(0x7fffffffdaa0), 0xabcd);
+    write64bit_dram(va2pa(0x7fffffffda98), 0x12340000);
+    write64bit_dram(va2pa(0x7fffffffda90), 0x7fffffffde49);      //rsp
 
-    mm[va2pa(0x7fffffffdab0)] = 0x1;                  //rbp
-    mm[va2pa(0x7fffffffdaa8)] = 0x555555555040;
-    mm[va2pa(0x7fffffffdaa0)] = 0xabcd;
-    mm[va2pa(0x7fffffffda98)] = 0x12340000;
-    mm[va2pa(0x7fffffffda90)] = 0x7fffffffde49;       //rsp
+    print_register();
+    print_stack();
 
 
-    for (size_t i = 0; i < INST_LEN; i++)
+    // for (size_t i = 0; i < INST_LEN; i++)
+    for (size_t i = 0; i < 2; i++)
     {
-    //    instruction_cycle();
+       instruction_cycle();
+    
+        print_register();
+        print_stack();
+
     }
     
 
@@ -159,11 +171,11 @@ int main()
 // 0x7fffffffdaa0: 0x0000abcd      0x00000000      0x1234abcd      0x00000000
 // 0x7fffffffdab0: 0x00000001      0x00000000
 
-    match = match && (mm[va2pa(0x7fffffffdab0)] == 0x1);                  //rbp
-    match = match && (mm[va2pa(0x7fffffffdaa8)] == 0x1234abcd);
-    match = match && (mm[va2pa(0x7fffffffdaa0)] == 0xabcd);
-    match = match && (mm[va2pa(0x7fffffffda98)] == 0x12340000);
-    match = match && (mm[va2pa(0x7fffffffda90)] == 0x7fffffffde49);       //rsp
+    match = match && (read64bits_dram(va2pa(0x7fffffffdab0)) == 0x1);                  //rbp
+    match = match && (read64bits_dram(va2pa(0x7fffffffdaa8)) == 0x1234abcd);
+    match = match && (read64bits_dram(va2pa(0x7fffffffdaa0)) == 0xabcd);
+    match = match && (read64bits_dram(va2pa(0x7fffffffda98)) == 0x12340000);
+    match = match && (read64bits_dram(va2pa(0x7fffffffda90)) == 0x7fffffffde49);       //rsp
 
     if (match == 1) 
     {
@@ -176,3 +188,44 @@ int main()
 
     return 0;
 }
+
+// 实现 gdb 的 info r
+void print_register()
+{
+    printf("rax == %16lx\trbx = %16lx\trcx = %16lx\trdx = %16lx\n",
+        reg.rax, reg.rbx, reg.rcx, reg.rdx);
+    printf("rsi == %16lx\trdi = %16lx\trbp = %16lx\trsp = %16lx\n",
+        reg.rsi, reg.rdi, reg.rbp, reg.rsp);
+    printf("rip == %16lx\n",
+        reg.rip);
+}
+
+// 实现 gdb 的 diassemable
+void print_stack() 
+{
+    int n = 10;
+
+    uint64_t *high = (uint64_t *)&mm[va2pa(reg.rsp)];
+    // 从高往低输出
+    high = &high[n];
+    // 虚拟地址
+    uint64_t rsp_start = reg.rsp + n * 8;
+
+    for (int i = 0; i < 2 * n; i++)
+    {
+        uint64_t *ptr = (uint64_t *)(high - i);
+        // 虚拟地址 : 值
+        printf("0x%016lx : 0x%16lx", rsp_start , (uint64_t)*ptr);
+
+        if (i == n)
+        {
+            printf(" <== rsp");
+        }
+
+        rsp_start = rsp_start - 8;
+
+        printf("\n");
+    }
+    
+}
+

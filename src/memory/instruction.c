@@ -173,4 +173,6 @@ void instruction_cycle()
 
     handler(src, dst);
 
+    printf("  %s\n", instr->code);
+
 }
