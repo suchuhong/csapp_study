@@ -70,7 +70,7 @@ static uint64_t decode_od(od_t od)
             vaddr = od.imm + *(od.reg1) + (*(od.reg2)) * od.scal;
         }
 
-        return va2pa(vaddr);
+        return vaddr;
     }
 }
 
@@ -99,12 +99,28 @@ void mov_reg_reg_handler(uint64_t src, uint64_t dst)
 
 void mov_reg_mem_handler(uint64_t src, uint64_t dst)
 {
+    // src : reg
+    // dst : mem vaddr
+    write64bit_dram(
+        va2pa(dst),
+        *(uint64_t *)src
+    );
     
+    // PC/rip 指向 下一条指令
+    reg.rip =  reg.rip + sizeof(inst_t);
 }
 
 void mov_mem_reg_handler(uint64_t src, uint64_t dst)
 {
-
+    // src : mem vaddr
+    // dst : reg
+    // 读内存
+    uint64_t val = read64bits_dram(va2pa(src));
+    // printf("val == %16lx\n", val);
+    // 写 reg
+    *(uint64_t *)dst = val;
+    // PC/rip 指向 下一条指令
+    reg.rip =  reg.rip + sizeof(inst_t);
 }
 
 /**
@@ -128,7 +144,17 @@ void call_handler(uint64_t src, uint64_t dst)
 
 void push_reg_handler(uint64_t src, uint64_t dst)
 {
-
+    // src : reg
+    // dst : empty
+    // rsp 向下移动
+    reg.rsp = reg.rsp - 8;
+    // 写入值
+    write64bit_dram(
+        va2pa(reg.rsp),
+        *(uint64_t *)src
+    );
+    // PC/rip 指向 下一条指令
+    reg.rip =  reg.rip + sizeof(inst_t);
 }
 
 void pop_reg_handler(uint64_t src, uint64_t dst)

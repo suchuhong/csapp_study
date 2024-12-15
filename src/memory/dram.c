@@ -8,6 +8,9 @@
 // 每一个地址只能放一个 byte
 uint8_t mm[MM_LEN];  // 定义数组
 
+/**
+ * 读 memory
+ */
 uint64_t read64bits_dram(uint64_t paddr)
 {
     if (SRAM_CACHE_SETTING == 1) {
@@ -29,6 +32,9 @@ uint64_t read64bits_dram(uint64_t paddr)
 
 }
 
+/**
+ * 写 memory
+ */
 void write64bit_dram(uint64_t paddr, uint64_t data)
 {
     if (SRAM_CACHE_SETTING == 1) {
