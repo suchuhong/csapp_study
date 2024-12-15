@@ -90,6 +90,8 @@ void init_handler_table()
 
 void mov_reg_reg_handler(uint64_t src, uint64_t dst)
 {
+    // src : reg
+    // dst : reg
     *(uint64_t *)dst = *(uint64_t *)src;
     // PC/rip 指向 下一条指令
     reg.rip =  reg.rip + sizeof(inst_t);
@@ -97,7 +99,7 @@ void mov_reg_reg_handler(uint64_t src, uint64_t dst)
 
 void mov_reg_mem_handler(uint64_t src, uint64_t dst)
 {
-
+    
 }
 
 void mov_mem_reg_handler(uint64_t src, uint64_t dst)
@@ -105,9 +107,23 @@ void mov_mem_reg_handler(uint64_t src, uint64_t dst)
 
 }
 
+/**
+ * 1、rsp 往下移动
+ * 2、rsp 写入call调用返回后的下一条指令地址
+ */
 void call_handler(uint64_t src, uint64_t dst)
 {
-
+    // src : imm address of called function
+    // 移动 rsp 指针
+    reg.rsp = reg.rsp - 8;
+    // write return address to rsp memory
+    // 写rsp值
+    write64bit_dram(
+        va2pa(reg.rsp),
+        reg.rip + sizeof(inst_t)
+    );
+    // PC 放到 call xx 的开始位置
+    reg.rip = src;
 }
 
 void push_reg_handler(uint64_t src, uint64_t dst)

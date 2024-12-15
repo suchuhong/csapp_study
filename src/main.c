@@ -91,7 +91,7 @@ int main()
 
 
     // for (size_t i = 0; i < INST_LEN; i++)
-    for (size_t i = 0; i < 2; i++)
+    for (size_t i = 0; i < 3; i++)
     {
        instruction_cycle();
     
