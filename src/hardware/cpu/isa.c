@@ -297,8 +297,8 @@ static void parse_operand(const char *str, od_t *od, core_t *cr)
         char scal[64] = {'\0'};
         int scal_len = 0;
 
-        int ca = 0; // ()
-        int cb = 0; // ,
+        int count_parentheses = 0; // ()
+        int count_comma = 0; // ,
         
         for (int i = 0; i < str_len; i++)
         {
@@ -306,27 +306,27 @@ static void parse_operand(const char *str, od_t *od, core_t *cr)
 
             if(c == '(' || c == ')')
             {
-                ca ++;
+                count_parentheses ++;
                 continue;
             } 
             else if (c == ',')
             {
-                cb ++;
+                count_comma ++;
                 continue;
             }
             else 
             {
                 // pasre imm(reg1,reg2,scal)
-                if (ca == 0)
+                if (count_parentheses == 0)
                 {
                     // xxxx
                     imm[imm_len] = c;
                     imm_len++;
                     continue;
                 }
-                else if (ca == 1)
+                else if (count_parentheses == 1)
                 {
-                    if (cb == 0) 
+                    if (count_comma == 0) 
                     {
                         // ???(xxxx
                         // (xxxx
@@ -334,7 +334,7 @@ static void parse_operand(const char *str, od_t *od, core_t *cr)
                         reg1_len++;
                         continue;
                     }
-                    else if (cb == 1) 
+                    else if (count_comma == 1) 
                     {
                         // ???(???,xxxx
                         // (???,xxx
@@ -344,7 +344,7 @@ static void parse_operand(const char *str, od_t *od, core_t *cr)
                         reg2_len++;
                         continue;
                     }
-                    else if (cb == 2) 
+                    else if (count_comma == 2) 
                     {
                         // ???(???,???,xxxx
                         // (???,???,xxxx
@@ -369,7 +369,7 @@ static void parse_operand(const char *str, od_t *od, core_t *cr)
         {
             od->imm = string2uint(imm);
 
-            if(ca == 0)
+            if(count_parentheses == 0)
             {
                 // Memory      Imm           M[Imm]                     Absolute
                 od->type = MEM_IMM;
@@ -400,7 +400,7 @@ static void parse_operand(const char *str, od_t *od, core_t *cr)
         }
         
         // set operand type
-        if (cb == 0)
+        if (count_comma == 0)
         {
             if (imm_len > 0)
             {
@@ -417,7 +417,7 @@ static void parse_operand(const char *str, od_t *od, core_t *cr)
                 return;
             }
         }
-        else if (cb == 1)
+        else if (count_comma == 1)
         {
             if (imm_len > 0)
             {
@@ -434,7 +434,7 @@ static void parse_operand(const char *str, od_t *od, core_t *cr)
                 return;
             }
         }
-        else if (cb == 2)
+        else if (count_comma == 2)
         {
             if (reg1_len > 0)
             {
