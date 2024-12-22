@@ -8,6 +8,7 @@ uint64_t string2uint(const char *str)
 {
     return string2uint_range(str, 0, -1);
 }
+// 使用DFA实现
 uint64_t string2uint_range(const char *str, int start, int end)
 {
     // start: 包含
