@@ -9,6 +9,10 @@
 /*      instruction set architecture    */
 /*======================================*/
 
+core_t cores[NUM_CORES];
+// active core for current task
+uint64_t ACTIVE_CORE;
+
 // data structures
 typedef enum INST_OPERATOR
 {
@@ -25,6 +29,22 @@ typedef enum INST_OPERATOR
     INST_JMP,           // 10
 } op_t;
 
+// csapp 217
+// Figure 3.3
+// Operand forms. Operands can denote immediate (constant) values, register
+// values, or values from memory. The scaling factor s must be either 1, 2, 4, or 8.
+// Type        Form          Operand value              Name
+// Immediate   $Imm          Imm                        Immediate
+// Register    ra            R[ra]                      Register
+// Memory      Imm           M[Imm]                     Absolute
+// Memory      (ra)          M[R[ra]]                   Indirect
+// Memory      Imm(rb)       M[Imm + R[rb]]             Base + displacement
+// Memory      (rb,ri)       M[R[rb] + R[ri]]           Indexed
+// Memory      Imm(rb,ri)    M[Imm + R[rb] + R[ri]]     Indexed
+// Memory      (,ri,s)       M[R[ri] . s]               Scaled indexed
+// Memory      Imm(,ri,s)    M[Imm + R[ri] . s]         Scaled indexed
+// Memory      (rb,ri,s)     M[R[rb] + R[ri] . s]       Scaled indexed
+// Memory      Imm(rb,ri,s)  M[Imm + R[rb] + R[ri] . s] Scaled indexed
 typedef enum OPERAND_TYPE
 {
     EMPTY,                  // 0
@@ -66,7 +86,9 @@ typedef struct INST_STRUCT
 /*======================================*/
 
 // functions to map the string assembly code to inst_t instance
+// 解析指令
 static void parse_instruction(const char *str, inst_t *inst, core_t *cr);
+// 解析操作数
 static void parse_operand(const char *str, od_t *od, core_t *cr);
 static uint64_t decode_operand(od_t *od);
 
@@ -140,9 +162,61 @@ static void parse_instruction(const char *str, inst_t *inst, core_t *cr)
     
 }
 
+// c 语言字符串以  '\0' 结尾
+// csapp 217
+// Figure 3.3
+// Operand forms. Operands can denote immediate (constant) values, register
+// values, or values from memory. The scaling factor s must be either 1, 2, 4, or 8.
+// Type        Form          Operand value              Name
+// Immediate   $Imm          Imm                        Immediate
+// Register    ra            R[ra]                      Register
+// Memory      Imm           M[Imm]                     Absolute
+// Memory      (ra)          M[R[ra]]                   Indirect
+// Memory      Imm(rb)       M[Imm + R[rb]]             Base + displacement
+// Memory      (rb,ri)       M[R[rb] + R[ri]]           Indexed
+// Memory      Imm(rb,ri)    M[Imm + R[rb] + R[ri]]     Indexed
+// Memory      (,ri,s)       M[R[ri] . s]               Scaled indexed
+// Memory      Imm(,ri,s)    M[Imm + R[ri] . s]         Scaled indexed
+// Memory      (rb,ri,s)     M[R[rb] + R[ri] . s]       Scaled indexed
+// Memory      Imm(rb,ri,s)  M[Imm + R[rb] + R[ri] . s] Scaled indexed
+// 类型 Form 
 static void parse_operand(const char *str, od_t *od, core_t *cr)
 {
+    // str: assembly code string , mov $rsp,$rbp
+    // od： pointer to the address to store the parsed operand
+    // cr:  active core processor
+    od->type = EMPTY;
+    od->imm = 0;
+    od->scal = 0;
+    od->reg1 = 0;
+    od->reg2 = 0;
 
+    int str_len = strlen(str);
+    if (str_len == 0)
+    {
+        // empty operand string
+        return;
+    }
+
+    if (str[0] == '$')
+    {
+        // $Imm
+        // immediate number
+        od->type = IMM;
+        // 字符串解析为 uint64
+        od->imm = string2uint_range(str, 1, -1);
+        return;
+    } 
+    else if (str[0] == '%')
+    {
+        // register 
+        return;
+    }
+    else
+    {
+        // memory assess
+        return;
+    }
 }
 
 /*======================================*/
@@ -187,6 +261,10 @@ static handler_t handler_table[NUM_INSTRTYPE] = {
 
 // reset the condition flags
 // inline to reduce cost
+// CF  (unsigned) t < (unsigned) a          Unsigned overflow
+// ZF  (t == 0)                             Zero 
+// SF  (t < 0)                              Negative
+// OF  (a < 0 == b < 0) && (t < 0 != a < 0) Signed overflow
 static inline void reset_cflags(core_t *cr)
 {
     cr->CF = 0;
@@ -397,7 +475,7 @@ void instruction_cycle(core_t *cr)
 
 void print_register(core_t *cr)
 {
-    if ((DEBUG_VERBOSE_SET & DBBUG_REGISTERS) == 0x0)
+    if ((DEBUG_VERBOSE_SET & DEBUG_REGISTERS) == 0x0)
     {
         return;
     }

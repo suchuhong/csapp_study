@@ -5,7 +5,8 @@
         "dram.h": "c",
         "mmu.h": "c",
         "register.h": "c",
-        "elf.h": "c"
+        "elf.h": "c",
+        "common.h": "c"
     },
     "C_Cpp.clang_format_path": "clang-format",
     "C_Cpp.formatting": "clangFormat",

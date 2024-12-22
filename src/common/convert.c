@@ -10,7 +10,229 @@ uint64_t string2uint(const char *str)
 }
 uint64_t string2uint_range(const char *str, int start, int end)
 {
+    // start: 包含
+    // end: 包含
+    end = (end == -1) ? strlen(str) - 1 : end;
+
+    uint64_t unsigned_value = 0;
+    // 0 正数 1 负数
+    int sign_bit = 0;
+
+    // DFA
+    int state = 0;
+
+    for (int i = start; i <= end; ++ i)
+    {
+        char c = str[i];
+
+        if (state == 0)
+        {
+            if (c == '0')
+            {
+                state = 1;
+                unsigned_value = 0;
+                continue;
+            }
+            else if (c >= '1' && c <= '9')
+            {
+                state = 2;
+                unsigned_value = c - '0';
+                continue;
+            }
+            else if (c == '-')
+            {
+                state = 3;
+                sign_bit = 1;
+                continue;
+            }
+            else if (c == ' ')
+            {
+                state = 0;
+                continue;
+            } 
+            else
+            {
+                goto fail;
+            }
+            
+        }
+        else if (state == 1)
+        {
+            if ('0' <= c && c <= '9')
+            {
+                state = 2;
+                unsigned_value = unsigned_value * 10 + c - '0';
+                continue;
+            }
+            else if (c == 'x')
+            {
+                state = 4;
+                continue;
+            }
+            else if (c == ' ')
+            {
+                state = 6;
+                continue;
+            }
+            else
+            {
+                goto fail;
+            }
+        }
+        else if (state == 2)
+        {
+            if ('0' <= c && c <= '9')
+            {
+                state = 2;
+                uint64_t pre_value = unsigned_value;
+                unsigned_value = unsigned_value * 10 + c - '0';
+                // maybe overflow
+                if (pre_value > unsigned_value)
+                {
+                    printf("(uint64_t)%s overflow: annot convert \n", str);
+                    goto fail;
+                }
+                continue;
+            }
+            else if (c == ' ')
+            {
+                state = 6;
+                continue;
+            }
+            else
+            {
+                goto fail;
+            }
+        }
+        else if (state == 3)
+        {
+            if (c == '0')
+            {
+                state = 1;
+                continue;
+            }
+            else if (c >= '1' && c <= '9')
+            {
+                state = 2;
+                unsigned_value = c - '0';
+                continue;
+            }
+            else
+            {
+                goto fail;
+            }
+        }
+        else if (state == 4)
+        {
+            if (c >= '0' && c <= '9')
+            {
+                state = 5;
+                unsigned_value = unsigned_value * 16 + c - '0';
+                continue;
+            }
+            else if (c >= 'a' && c <= 'f')
+            {
+                state = 5;
+                unsigned_value = unsigned_value * 16 + c - 'a' + 10;
+                continue;
+            }
+            else if (c >= 'A' && c <= 'F')
+            {
+                state = 5;
+                unsigned_value = unsigned_value * 16 + c - 'A' + 10;
+                continue;
+            }
+            else
+            {
+                goto fail;
+            }
+        }
+        else if (state == 5)
+        {
+            if (c >= '0' && c <= '9')
+            {
+                state = 5;
+                uint64_t pre_value = unsigned_value;
+                unsigned_value = unsigned_value * 16 + c - '0';
+                // maybe overflow
+                if (pre_value > unsigned_value)
+                {
+                    printf("(uint64_t)%s overflow: annot convert \n", str);
+                    goto fail;
+                }
+                continue;
+            }
+            else if (c >= 'a' && c <= 'f')
+            {
+                state = 5;
+                uint64_t pre_value = unsigned_value;
+                unsigned_value = unsigned_value * 16 + c - 'a' + 10;
+                // maybe overflow
+                if (pre_value > unsigned_value)
+                {
+                    printf("(uint64_t)%s overflow: annot convert \n", str);
+                    goto fail;
+                }
+                continue;
+            }
+            else if (c >= 'A' && c <= 'F')
+            {
+                state = 5;
+                uint64_t pre_value = unsigned_value;
+                unsigned_value = unsigned_value * 16 + c - 'A' + 10;
+                unsigned_value = unsigned_value * 16 + c - 'a' + 10;
+                // maybe overflow
+                if (pre_value > unsigned_value)
+                {
+                    printf("(uint64_t)%s overflow: annot convert \n", str);
+                    goto fail;
+                }
+                continue;
+            }
+            else if (c == ' ')
+            {
+                state = 6;
+                continue;
+            }
+            else
+            {
+                goto fail;
+            }
+        }
+        else if (state == 5)
+        {
+            if (c == ' ')
+            {
+                state = 6;
+                continue;
+            }
+            else
+            {
+                goto fail;
+            }
+        }
+    }
+
+    if (sign_bit == 0) 
+    {
+        return unsigned_value;
+    }
+    else if (sign_bit == 1) 
+    {
+        if ((unsigned_value & 0x8000000000000000) != 0) {
+            printf("(int64_t)%s: signed overflow: cannot convert\n", str);
+            exit(0);
+        }
+        int64_t sign_value = -1 * (int64_t)unsigned_value;
+        return *((uint64_t *)&sign_value);
+    }
+
     return 0;
+
+    fail:
+    printf("类型转换失败: <%s> 无法转换为整形\n", str);
+    exit(0);
+
 }
 // convert uint32_t to its float
 uint32_t uint2float(uint32_t u)

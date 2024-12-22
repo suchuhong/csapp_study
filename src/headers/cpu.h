@@ -254,9 +254,9 @@ typedef struct CORE_STRUCT
 
 // define cpu core array to support core level parallelism
 #define NUM_CORES 1
-core_t cores[NUM_CORES];
+extern core_t cores[NUM_CORES];
 // active core for current task
-uint64_t ACTIVE_CORE;
+extern uint64_t ACTIVE_CORE;
 
 #define MAX_INSTRUCTION_CHAR 64
 #define NUM_INSTRTYPE 14

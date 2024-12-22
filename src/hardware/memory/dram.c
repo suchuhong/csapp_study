@@ -3,6 +3,8 @@
 #include<headers/memory.h>
 #include<headers/common.h>
 
+uint8_t pm[PHYSICAL_MEMORY_SPACE];
+
 /*  
 Be careful with the x86-64 little endian integer encoding
 e.g. write 0x00007fd357a02ae0 to cache, the memory lapping should be:
