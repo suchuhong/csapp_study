@@ -15,8 +15,8 @@
 
 // #define DEBUG_VERBOSE_SET     0x41      DEBUG_INSTRUCTIONCYCLE | DEBUG_LINKER
 // #define DEBUG_VERBOSE_SET     0x41      DEBUG_INSTRUCTIONCYCLE | DEBUG_REGISTERS
-#define DEBUG_VERBOSE_SET           0x3
-
+// #define DEBUG_VERBOSE_SET           0x101
+#define DEBUG_VERBOSE_SET           0x001
 // do page walk
 #define DEBUG_ENABLE_PAGE_WALK      0
 // use sram cache for memory access 

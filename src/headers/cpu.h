@@ -204,7 +204,7 @@ Note: SRAM cache address is the translated physical address
 
 typedef union CPU_FLAGS_STRUCT
 {
-    uint64_t __flag_values;
+    uint64_t __cpu_flag_value;
     struct 
     {
         // carry flag: detect overflow for unsigned operations

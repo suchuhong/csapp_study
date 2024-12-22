@@ -231,7 +231,7 @@ uint64_t string2uint_range(const char *str, int start, int end)
     return 0;
 
     fail:
-    printf("类型转换失败: <%s> 无法转换为整形\n", str);
+    printf("类型转换失败: %d <%s> 无法转换为整形\n", state, str);
     exit(0);
 
 }
