@@ -70,7 +70,7 @@ inst_t program[INST_LEN] =
     },
     { // rip
         // op
-        MOV_REG_REG,
+        ADD_REG_REG,
         // src
         { REG, 0, 0, (uint64_t *)&reg.rdx, NULL },
         // dst

@@ -91,9 +91,9 @@ int main()
 
 
     // for (size_t i = 0; i < INST_LEN; i++)
-    for (size_t i = 0; i < 9; i++)
+    for (size_t i = 0; i < 15; i++)
     {
-       instruction_cycle();
+        instruction_cycle();
     
         print_register();
         print_stack();

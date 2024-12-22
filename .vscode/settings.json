@@ -1,6 +1,14 @@
 {
     "files.associations": {
         "stdio.h": "c",
-        "instruction.h": "c"
-    }
+        "instruction.h": "c",
+        "dram.h": "c",
+        "mmu.h": "c",
+        "register.h": "c",
+        "elf.h": "c"
+    },
+    "C_Cpp.clang_format_path": "clang-format",
+    "C_Cpp.formatting": "clangFormat",
+    "files.autoSave": "afterDelay",
+    "editor.formatOnSave": true
 }

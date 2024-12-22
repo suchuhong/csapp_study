@@ -94,7 +94,7 @@ void mov_reg_reg_handler(uint64_t src, uint64_t dst)
     // dst : reg
     *(uint64_t *)dst = *(uint64_t *)src;
     // PC/rip 指向 下一条指令
-    reg.rip =  reg.rip + sizeof(inst_t);
+    reg.rip = reg.rip + sizeof(inst_t);
 }
 
 void mov_reg_mem_handler(uint64_t src, uint64_t dst)
@@ -107,7 +107,7 @@ void mov_reg_mem_handler(uint64_t src, uint64_t dst)
     );
     
     // PC/rip 指向 下一条指令
-    reg.rip =  reg.rip + sizeof(inst_t);
+    reg.rip = reg.rip + sizeof(inst_t);
 }
 
 void mov_mem_reg_handler(uint64_t src, uint64_t dst)
@@ -120,7 +120,7 @@ void mov_mem_reg_handler(uint64_t src, uint64_t dst)
     // 写 reg
     *(uint64_t *)dst = val;
     // PC/rip 指向 下一条指令
-    reg.rip =  reg.rip + sizeof(inst_t);
+    reg.rip = reg.rip + sizeof(inst_t);
 }
 
 /**
@@ -154,17 +154,28 @@ void push_reg_handler(uint64_t src, uint64_t dst)
         *(uint64_t *)src
     );
     // PC/rip 指向 下一条指令
-    reg.rip =  reg.rip + sizeof(inst_t);
+    reg.rip = reg.rip + sizeof(inst_t);
 }
 
 void pop_reg_handler(uint64_t src, uint64_t dst)
 {
-
+    // src : reg - 保存的地址
+    // dst : empty
+    // rsp 向下移动
+    uint64_t val = read64bits_dram(va2pa(reg.rsp));
+    *(uint64_t *)src = val;
+    reg.rsp = reg.rsp + 8;
+    reg.rip = reg.rip + sizeof(inst_t);
 }
 
 void ret_handler(uint64_t src, uint64_t dst)
 {
-
+    // src : empty
+    // dst : empty
+    // rsp 向下移动
+    uint64_t ret_addr = read64bits_dram(va2pa(reg.rsp));
+    reg.rsp = reg.rsp + 8;
+    reg.rip = ret_addr;
 }
 
 void add_reg_reg_handler(uint64_t src, uint64_t dst) 
@@ -185,7 +196,7 @@ void add_reg_reg_handler(uint64_t src, uint64_t dst)
 
     *(uint64_t *)dst = *(uint64_t *)src + *(uint64_t *)dst;
     // PC/rip 指向 下一条指令
-    reg.rip =  reg.rip + sizeof(inst_t);
+    reg.rip = reg.rip + sizeof(inst_t);
 }
 
 // while (1) {
